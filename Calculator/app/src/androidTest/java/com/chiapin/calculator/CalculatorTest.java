@@ -22,11 +22,23 @@ public class CalculatorTest extends UiAutomatorTestCase{
 
     public void testBasicFunction() throws UiObjectNotFoundException{
         System.out.println(" *** Basic Function START ***");
+        writeTestResult(" *** Basic Function START ***");
         CalculatorButton tmpButton = new CalculatorButton();
         backtoHome();
         // launch Calculator app from all apps
-        if (!launchCalculatorApp()) {
+        if (!launchCalculatorApp(0)) {
             getScreenShot("LaunchCalculatorAppFailed");
+            writeTestResult("LaunchCalculatorFromAllApp : FALSE");
+        }else{
+            writeTestResult("LaunchCalculatorFromAllApp : TRUE");
+        }
+        backtoHome();
+        // launch Calculator app from shortcut
+        if (!launchCalculatorApp(1)) {
+            getScreenShot("LaunchCalculatorAppFailed");
+            writeTestResult("LaunchCalculatorFromShortcut : FALSE");
+        }else{
+            writeTestResult("LaunchCalculatorFromShortcut : TRUE");
         }
 
         //Check if all keys are working (0 to 9, +, -, *, /, clear, del, wqual, dot)
@@ -40,19 +52,23 @@ public class CalculatorTest extends UiAutomatorTestCase{
         UiObject ButtonEq = new UiObject(new UiSelector().resourceId(tmpButton.ButtonEq));
        if (ButtonEq.waitForExists(5000)) {
             System.out.println("Tap back key to exit calculator app : FALSE");
+            writeTestResult("ExitAppTest : FALSE");
             getScreenShot("FailToTapBackKeyToExitApp");
         }else{
             System.out.println("Tap back key to exit calculator app : TRUE");
+            writeTestResult("ExitAppTest : TRUE");
         }
         System.out.println(" *** Basic Function END ***");
+        writeTestResult(" *** Basic Function END *** ");
     }
 
     public void testFunctionality() throws UiObjectNotFoundException{
         System.out.println(" *** Functionality Test Cases START ***");
+        writeTestResult(" *** Functionality Test Cases START *** ");
 
         backtoHome();
         // launch calculator app via all apps
-        if (!launchCalculatorApp()) {
+        if (!launchCalculatorApp((int)(Math.random()*2))){
             getScreenShot("LaunchCalculatorAppFailed");
         }
 
@@ -92,34 +108,61 @@ public class CalculatorTest extends UiAutomatorTestCase{
         //Check the division of one float and one integer number.
         calculatorTest((double)(Math.random()*9999),(int)(Math.random()*9999),"/");
         calculatorTest((int)(Math.random()*9999),(double)(Math.random()*9999),"/");
-        //Check the division of a number by zero.
-        calculatorTest((int)(Math.random()*9999),0,"/");
-        calculatorTest((double)(Math.random()*9999),0,"/");
-        calculatorTest(-(int)(Math.random()*9999),0,"/");
-        //Check the division of zero by any number.
-        calculatorTest(0,(int)(Math.random()*9999),"/");
-        calculatorTest(0,(double)(Math.random()*9999),"/");
-        calculatorTest(0,-(int)(Math.random()*9999),"/");
 
         backtoHome();
         System.out.println(" *** Functionality Test Cases END ***");
+        writeTestResult(" *** Functionality Test Cases END *** ");
     }
 
     public void testStress() throws UiObjectNotFoundException{
         System.out.println(" *** Stress Test Cases START ***");
-        int testCycle = 9999;
+        writeTestResult(" ***  Stress Test Cases START *** ");
+        int testCycle = 9;
         backtoHome();
         // launch calculator app via all apps
-        if (!launchCalculatorApp()) {
+        if (!launchCalculatorApp((int)(Math.random()*2))){
             getScreenShot("LaunchCalculatorAppFailed");
         }
-
         for (int index = 0; index < testCycle; index++) {
             calculatorTest();
         }
-
         backtoHome();
         System.out.println(" *** Stress Test Cases END ***");
+        writeTestResult(" ***  Stress Test Cases END *** ");
+    }
+
+    public void testNegative() throws UiObjectNotFoundException{
+        System.out.println(" *** Negative Test Cases START ***");
+        writeTestResult(" ***  Negative Test Cases START *** ");
+        CalculatorButton tmpButton = new CalculatorButton();
+
+        backtoHome();
+        // launch calculator app via all apps
+        if (!launchCalculatorApp((int)(Math.random()*2))){
+            getScreenShot("LaunchCalculatorAppFailed");
+        }
+
+        //Check the division of a number by zero.
+        calculatorTest((int)(Math.random()*9999),0,"/");
+        calculatorTest((double)(Math.random()*9999),0,"/");
+        calculatorTest(-(int)(Math.random()*9999),0,"/");
+
+        //Check the division of zero by any number.
+        calculatorTest(0,(int)(Math.random()*9999),"/");
+        calculatorTest(0, (double) (Math.random() * 9999), "/");
+        calculatorTest(0, -(int) (Math.random() * 9999), "/");
+
+        //What if your expression starts with * or /?
+        clickButton(tmpButton.ButtonOP[2][1]);
+        calculatorTestWithoutClear((double) (Math.random() * 9999), (double) (Math.random() * 9999));
+
+        clearAllText();
+        clickButton(tmpButton.ButtonOP[3][1]);
+        calculatorTestWithoutClear((double) (Math.random() * 9999), (double) (Math.random() * 9999));
+
+        backtoHome();
+        System.out.println(" *** Negative Test Cases END ***");
+        writeTestResult(" ***  Negative Test Cases END *** ");
     }
 
     public void componentTest() throws UiObjectNotFoundException{
@@ -131,9 +174,11 @@ public class CalculatorTest extends UiAutomatorTestCase{
         getText = resultTextView.getText();
         if (!getText.equals("")) {
             System.out.println("[TAP BUTTON#Del] Test result : FAIL ");
+            writeTestResult("[TAP BUTTON#Del] Test result : FAIL");
             getScreenShot("FiledToPressButtonDel");
         }else{
             System.out.println("[TAP BUTTON#DEL] Test result :PASS ");
+            writeTestResult("[TAP BUTTON#DEL] Test result :PASS");
         }
         for (int index=0 ; index<=9 ; index++){
             clearAllText();
@@ -141,8 +186,10 @@ public class CalculatorTest extends UiAutomatorTestCase{
             getText = resultTextView.getText();
             if (getText.equals(Integer.toString(index))){
                 System.out.println("[TAP BUTTON#" + index + "] Test result :PASS ");
+                writeTestResult("[TAP BUTTON#" + index + "] Test result :PASS ");
             }else {
                 System.out.println("[TAP BUTTON#" + index + "] Test result : FAIL ");
+                writeTestResult("[TAP BUTTON#" + index + "] Test result :FAIL ");
                 getScreenShot("FiledToPressButton" + index);
             }
         }
@@ -157,9 +204,11 @@ public class CalculatorTest extends UiAutomatorTestCase{
             else if (index == 2){tmpStr = "×";}
             else if (index == 3){tmpStr = "÷";}
             if (getText.contains(tmpStr)){
+                writeTestResult("[TAP BUTTON#" + tmpButton.ButtonOP[index][0] + "] Test result :PASS");
                 System.out.println("[TAP BUTTON#" + tmpButton.ButtonOP[index][0] + "] Test result :PASS ");
             }else{
                 System.out.println("[TAP BUTTON#" + tmpButton.ButtonOP[index][0] + "] Test result : FAIL ");
+                writeTestResult("[TAP BUTTON#" + tmpButton.ButtonOP[index][0] + "] Test result :FAIL");
                 getScreenShot("FiledToPressButton"+tmpButton.ButtonOP[index][0]);
             }
         }
@@ -169,8 +218,10 @@ public class CalculatorTest extends UiAutomatorTestCase{
         getText = resultTextView.getText();
         if (getText.equals(".")){
             System.out.println("[TAP BUTTON#Dot] Test result :PASS ");
-        }else{
+            writeTestResult("[TAP BUTTON#Dot] Test result :PASS ");
+        } else {
             System.out.println("[TAP BUTTON#Dot] Test result : FAIL ");
+            writeTestResult("[TAP BUTTON#Dot] Test result :FAIL ");
             getScreenShot("FiledToPressButtonDot");
         }
 
@@ -178,8 +229,10 @@ public class CalculatorTest extends UiAutomatorTestCase{
         getText = getResultFromUI();
         if (getText.equals("0")){
             System.out.println("[TAP BUTTON#EQ] Test result :PASS ");
+            writeTestResult("[TAP BUTTON#EQ] Test result :PASS ");
         }else{
             System.out.println("[TAP BUTTON#EQ] Test result : FAIL ");
+            writeTestResult("[TAP BUTTON#EQ] Test result :FAIL ");
             getScreenShot("FiledToPressButtonEQ");
         }
     }
@@ -278,6 +331,29 @@ public class CalculatorTest extends UiAutomatorTestCase{
         return testResult;
     }
 
+    public boolean calculatorTestWithoutClear(double b1, double b2) throws UiObjectNotFoundException{
+        CalculatorButton tmpButton = new CalculatorButton();
+        String sNum1 = "",sNum2 = "";
+        boolean testResult = false;
+        int ranOperator = (int)(Math.random()*4); // To generate the operator
+        if (isIntegral(b1)){sNum1 = String.valueOf((int)b1);}else{sNum1 = String.valueOf(b1);}
+        if (isIntegral(b2)){sNum2 = String.valueOf((int)b2);}else{sNum2 = String.valueOf(b2);}
+
+        String calResult = calculateNumbyUI(sNum1, sNum2, tmpButton.ButtonOP[ranOperator][0]);
+
+        if (sNum2.equals("0") && ranOperator == 3){
+            testResult = (checkCalculatedResult(calResult, "Can't divide by 0"));
+        }else {
+            double opResult = calculateResult(b1, b2, tmpButton.ButtonOP[ranOperator][0]);
+            testResult = (checkCalculatedResult(calResult, opResult));
+        }
+
+        //System.out.println("Num1 = " + sNum1 + " " + tmpButton.ButtonOP[ranOperator][0] + " Num2 = " + sNum2);
+        writeTestResult(b1 + tmpButton.ButtonOP[ranOperator][0] + b2, testResult);
+        System.out.println(b1 + tmpButton.ButtonOP[ranOperator][0] + b2+" | Test result : "+ testResult);
+        return testResult;
+    }
+
     public String calculateNumbyUI(String Numb1,String Numb2,String Operator)throws UiObjectNotFoundException{
         CalculatorButton tmpButton = new CalculatorButton();
         for (int index=0; index<Numb1.length() ;index++){
@@ -360,6 +436,7 @@ public class CalculatorTest extends UiAutomatorTestCase{
     // @return   resultText
     public String getResultFromUI() throws UiObjectNotFoundException{
         UiObject resultTextView = new UiObject(new UiSelector().resourceId("com.android.calculator2:id/result"));
+        resultTextView.waitForExists(5000);
         String resultText = resultTextView.getText();
         //System.out.println("[getResult] resultText = " + resultText);
         return resultText;
@@ -381,6 +458,11 @@ public class CalculatorTest extends UiAutomatorTestCase{
     // @return : true | false
     public boolean clickButton(String targetButton) throws UiObjectNotFoundException{
         UiObject tmpButton = new UiObject(new UiSelector().resourceId(targetButton));
+        if (!tmpButton.waitForExists(5000)){
+            System.out.println("Cannot found the target button : "+targetButton);
+            getScreenShot("CannotFoundTargetButton");
+            return false;
+        }
         return tmpButton.click();
     }
 
@@ -400,6 +482,40 @@ public class CalculatorTest extends UiAutomatorTestCase{
                         "Calculator");
         CalculatorApp.clickAndWaitForNewWindow();
 
+        UiObject ButtonEq = new UiObject(new UiSelector().resourceId(tmpButton.ButtonEq));
+        return ButtonEq.waitForExists(5000);
+    }
+    public boolean launchCalculatorApp(int method) throws UiObjectNotFoundException{
+        CalculatorButton tmpButton = new CalculatorButton();
+        getUiDevice().pressHome();
+        if (method == 0){
+            System.out.println("Launch Calculator app from all apps");
+
+            UiObject allAppsButton = new UiObject(new UiSelector().description("Apps"));
+            allAppsButton.clickAndWaitForNewWindow();
+
+            UiScrollable appViews = new UiScrollable(new UiSelector().scrollable(true));
+            UiObject CalculatorApp = appViews
+                    .getChildByText(new UiSelector()
+                                    .className(android.widget.TextView.class.getName()),
+                            "Calculator");
+            if (!CalculatorApp.waitForExists(5000)){
+                System.out.println("Cannot found calculator app in all apps");
+                getScreenShot("CannotFoundCalculatorAppInAllApps");
+                return false;
+            }
+            CalculatorApp.clickAndWaitForNewWindow();
+        }
+        else{
+            System.out.println("Launch Calculator app from shortcut");
+            UiObject CalculatorShortcut = new UiObject(new UiSelector().description("Calculator"));
+            if (!CalculatorShortcut.waitForExists(5000)){
+                System.out.println("No Calculator Shortcut in Home screen");
+                getScreenShot("NoCalculatorShortcutInHomeScreen");
+                return false;
+            }
+            CalculatorShortcut.clickAndWaitForNewWindow();
+        }
         UiObject ButtonEq = new UiObject(new UiSelector().resourceId(tmpButton.ButtonEq));
         return ButtonEq.waitForExists(5000);
     }
@@ -429,15 +545,34 @@ public class CalculatorTest extends UiAutomatorTestCase{
     // @param testCaseName    the name of test case
     // @param testCaseResult  the result of test case
     // @return                true | false
-    public boolean writeTestResult(String conditionStr, boolean testCaseRsult){
-        if(conditionStr.equals("") ||conditionStr.equals("")){
-            System.out.println("[writeTestResult] input parameter are nil value");
-            return false;
-        }
+    public boolean writeTestResult(String tmpStr){
         File file = new File("/sdcard/TestCaseResult.txt");
+        SimpleDateFormat systemTime = new SimpleDateFormat("MMddHHmmss");
+        String currentTime = systemTime.format(new java.util.Date());
         try{
             BufferedWriter bufWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file,true),"utf8"));
-            bufWriter.write(conditionStr+" : "+String.valueOf(testCaseRsult)+"\n");
+            bufWriter.write(currentTime+" "+tmpStr+"\n");
+            bufWriter.close();
+        }catch(IOException e){
+            e.printStackTrace();
+            System.out.println("[writeTestResult] Failed to write test result");
+            return false;
+        }
+        return true;
+    }
+
+    // write test result into /sdcard/TestCaseResult.txt
+    // @param testCaseName    the name of test case
+    // @param testCaseResult  the result of test case
+    // @return                true | false
+    public boolean writeTestResult(String conditionStr, boolean testCaseRsult){
+        File file = new File("/sdcard/TestCaseResult.txt");
+        SimpleDateFormat systemTime = new SimpleDateFormat("MMddHHmmss");
+        String currentTime = systemTime.format(new java.util.Date());
+
+        try{
+            BufferedWriter bufWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file,true),"utf8"));
+            bufWriter.write(currentTime+" "+conditionStr+" : "+String.valueOf(testCaseRsult)+"\n");
             bufWriter.close();
         }catch(IOException e){
             e.printStackTrace();
