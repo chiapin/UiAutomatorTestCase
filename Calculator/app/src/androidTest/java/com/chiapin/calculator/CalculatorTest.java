@@ -21,11 +21,30 @@ import java.util.Random;
 public class CalculatorTest extends UiAutomatorTestCase{
 
     public void testBasicFunction() throws UiObjectNotFoundException{
+        System.out.println(" *** Basic Function START ***");
+        CalculatorButton tmpButton = new CalculatorButton();
         backtoHome();
-        // launch calculator app via all apps
+        // launch Calculator app from all apps
         if (!launchCalculatorApp()) {
             getScreenShot("LaunchCalculatorAppFailed");
         }
+
+        //Check if all keys are working (0 to 9, +, -, *, /, clear, del, wqual, dot)
+        // Verify that all the buttons are present and text written on them is readable
+        componentTest();
+
+        //Check the if the calculator closes when the back key button is pressed
+        sleep(3000);
+        getUiDevice().pressBack();
+
+        UiObject ButtonEq = new UiObject(new UiSelector().resourceId(tmpButton.ButtonEq));
+       if (ButtonEq.waitForExists(5000)) {
+            System.out.println("Tap back key to exit calculator app : FALSE");
+            getScreenShot("FailToTapBackKeyToExitApp");
+        }else{
+            System.out.println("Tap back key to exit calculator app : TRUE");
+        }
+        System.out.println(" *** Basic Function END ***");
     }
 
     public void testFunctionality() throws UiObjectNotFoundException{
@@ -39,25 +58,47 @@ public class CalculatorTest extends UiAutomatorTestCase{
 
         // Check the addition of two integer numbers.
         calculatorTest((int)(Math.random()*9999),(int)(Math.random()*9999),"+");
+        // Check the addition of two float numbers.
+        calculatorTest((double)(Math.random()*9999),(double)(Math.random()*9999),"+");
+        //Check the addition of one float and one integer number.
+        calculatorTest((double)(Math.random()*9999),(int)(Math.random()*9999),"+");
+        calculatorTest((int)(Math.random()*9999),(double)(Math.random()*9999),"+");
         //Check the addition of one positive and one negative number.
         calculatorTest(-(int)(Math.random()*9999),(int)(Math.random()*9999),"+");
         // Check the subtraction of two integer numbers.
         calculatorTest((int)(Math.random()*9999),(int)(Math.random()*9999),"-");
+        // Check the subtraction of two float numbers.
+        calculatorTest((double)(Math.random()*9999),(double)(Math.random()*9999),"-");
+        //Check the subtraction of one float and one integer number.
+        calculatorTest((double)(Math.random()*9999),(int)(Math.random()*9999),"-");
+        calculatorTest((int)(Math.random()*9999),(double)(Math.random()*9999),"-");
         //Check the subtraction of one negative and one positive number.
         calculatorTest(-(int)(Math.random()*9999),(int)(Math.random()*9999),"-");
         //Check the multiplication of two integer numbers.
         calculatorTest((int)(Math.random()*9999),(int)(Math.random()*9999),"*");
+        // Check the multiplication of two float numbers.
+        calculatorTest((double)(Math.random()*9999),(double)(Math.random()*9999),"*");
+        //Check the multiplication of one float and one integer number.
+        calculatorTest((double)(Math.random()*9999),(int)(Math.random()*9999),"*");
+        calculatorTest((int)(Math.random()*9999),(double)(Math.random()*9999),"*");
         //Check the multiplication of one negative and one positive number.
         calculatorTest(-(int)(Math.random()*9999),(int)(Math.random()*9999),"*");
         //Check the division of two integer numbers.
         calculatorTest((int)(Math.random()*9999),(int)(Math.random()*9999),"/");
+        //Check the division of two float numbers.
+        calculatorTest((double)(Math.random()*9999),(double)(Math.random()*9999),"/");
         //Check the division of one positive number and one integer number.
         calculatorTest(-(int)(Math.random()*9999),(int)(Math.random()*9999),"/");
+        //Check the division of one float and one integer number.
+        calculatorTest((double)(Math.random()*9999),(int)(Math.random()*9999),"/");
+        calculatorTest((int)(Math.random()*9999),(double)(Math.random()*9999),"/");
         //Check the division of a number by zero.
         calculatorTest((int)(Math.random()*9999),0,"/");
+        calculatorTest((double)(Math.random()*9999),0,"/");
         calculatorTest(-(int)(Math.random()*9999),0,"/");
         //Check the division of zero by any number.
         calculatorTest(0,(int)(Math.random()*9999),"/");
+        calculatorTest(0,(double)(Math.random()*9999),"/");
         calculatorTest(0,-(int)(Math.random()*9999),"/");
 
         backtoHome();
@@ -66,7 +107,7 @@ public class CalculatorTest extends UiAutomatorTestCase{
 
     public void testStress() throws UiObjectNotFoundException{
         System.out.println(" *** Stress Test Cases START ***");
-        int testCycle = 9;
+        int testCycle = 9999;
         backtoHome();
         // launch calculator app via all apps
         if (!launchCalculatorApp()) {
@@ -79,6 +120,68 @@ public class CalculatorTest extends UiAutomatorTestCase{
 
         backtoHome();
         System.out.println(" *** Stress Test Cases END ***");
+    }
+
+    public void componentTest() throws UiObjectNotFoundException{
+        CalculatorButton tmpButton = new CalculatorButton();
+
+        UiObject resultTextView = new UiObject(new UiSelector().resourceId("com.android.calculator2:id/formula"));
+        String getText = "";
+        clearAllText();
+        getText = resultTextView.getText();
+        if (!getText.equals("")) {
+            System.out.println("[TAP BUTTON#Del] Test result : FAIL ");
+            getScreenShot("FiledToPressButtonDel");
+        }else{
+            System.out.println("[TAP BUTTON#DEL] Test result :PASS ");
+        }
+        for (int index=0 ; index<=9 ; index++){
+            clearAllText();
+            clickButton(tmpButton.Button[index]);
+            getText = resultTextView.getText();
+            if (getText.equals(Integer.toString(index))){
+                System.out.println("[TAP BUTTON#" + index + "] Test result :PASS ");
+            }else {
+                System.out.println("[TAP BUTTON#" + index + "] Test result : FAIL ");
+                getScreenShot("FiledToPressButton" + index);
+            }
+        }
+
+        for (int index=0 ; index<=3 ; index++){
+            clickButton(tmpButton.ButtonOP[index][1]);
+            getText = resultTextView.getText();
+            System.out.println("getText = "+getText);
+            String tmpStr ="";
+            if (index == 0){tmpStr = "+";}
+            else if(index == 1){tmpStr = "−";}
+            else if (index == 2){tmpStr = "×";}
+            else if (index == 3){tmpStr = "÷";}
+            if (getText.contains(tmpStr)){
+                System.out.println("[TAP BUTTON#" + tmpButton.ButtonOP[index][0] + "] Test result :PASS ");
+            }else{
+                System.out.println("[TAP BUTTON#" + tmpButton.ButtonOP[index][0] + "] Test result : FAIL ");
+                getScreenShot("FiledToPressButton"+tmpButton.ButtonOP[index][0]);
+            }
+        }
+
+        clearAllText();
+        clickButton(tmpButton.ButtonDot);
+        getText = resultTextView.getText();
+        if (getText.equals(".")){
+            System.out.println("[TAP BUTTON#Dot] Test result :PASS ");
+        }else{
+            System.out.println("[TAP BUTTON#Dot] Test result : FAIL ");
+            getScreenShot("FiledToPressButtonDot");
+        }
+
+        clickButton(tmpButton.ButtonEq);
+        getText = getResultFromUI();
+        if (getText.equals("0")){
+            System.out.println("[TAP BUTTON#EQ] Test result :PASS ");
+        }else{
+            System.out.println("[TAP BUTTON#EQ] Test result : FAIL ");
+            getScreenShot("FiledToPressButtonEQ");
+        }
     }
 
     public boolean calculatorTest() throws UiObjectNotFoundException{
@@ -253,7 +356,7 @@ public class CalculatorTest extends UiAutomatorTestCase{
         return value % 1.0 == 0;
     }
 
-    // get test resul from result field
+    // get test result from result field
     // @return   resultText
     public String getResultFromUI() throws UiObjectNotFoundException{
         UiObject resultTextView = new UiObject(new UiSelector().resourceId("com.android.calculator2:id/result"));
@@ -378,100 +481,3 @@ public class CalculatorTest extends UiAutomatorTestCase{
         return true;
     }
 }
-/*
-public boolean BasicFunction() throws UiObjectNotFoundException{
-
-    CalculatorButton tmpButton = new CalculatorButton();
-    boolean resultIsInt = true,testResult = false;
-
-    //clear all text
-    clearAllText();
-
-    String tmpStr1="",tmpStr2 = "";
-    boolean isTapDot = false;
-
-    int strlen1 = (int)(Math.random()*5)+1;  // To generate the length of number 1
-    int strlen2 = (int)(Math.random()*5)+1;  // To generate the length of number 1
-    int ranOperator = (int)(Math.random()*4); // To generate the operator
-
-    if (((int)(Math.random()*5)+1)%2 ==0){
-        tmpStr1 = "-";
-        clickButton(tmpButton.ButtonSub);
-    }
-
-    // To generate random number 1
-    for (int _index=1; _index<=strlen1; _index++){
-        int tmpNum = 0;
-        if (_index==1){
-            tmpNum = (int)(Math.random()*8)+1;
-        }
-        else{
-            tmpNum = (int)(Math.random()*9);
-        }
-        tmpStr1 = tmpStr1+Integer.toString(tmpNum);
-        clickButton(tmpButton.Button[tmpNum]);
-
-        if (!isTapDot){
-            if (((int)(Math.random()*9)+1)%3 ==0 && (_index!=strlen1)){
-                tmpStr1 = tmpStr1+".";
-                clickButton(tmpButton.ButtonDot);
-                isTapDot = true;
-            }
-        }
-    }
-    // click the operator button
-    clickButton(tmpButton.ButtonOP[ranOperator][1]);
-
-    // To generate random number 1
-    isTapDot = false;
-    for (int _index=1; _index<=strlen2; _index++){
-        int tmpNum = 0;
-        if (_index==1){
-            tmpNum = (int)(Math.random()*8)+1;
-        }
-        else{
-            tmpNum = (int)(Math.random()*9);
-        }
-        tmpStr2 = tmpStr2+Integer.toString(tmpNum);
-        clickButton(tmpButton.Button[tmpNum]);
-        if (!isTapDot){
-            if (((int)(Math.random()*9)+1)%3 ==0 && (_index!=strlen2)){
-                tmpStr2 = tmpStr2+".";
-                clickButton(tmpButton.ButtonDot);
-                isTapDot = true;
-            }
-        }
-    }
-
-    // click the equal button
-    clickButton(tmpButton.ButtonEq);
-
-    // transfer the string to double
-    double tmpNum1 =0,tmpNum2 =0;
-    try{
-        tmpNum1 = Double.parseDouble(tmpStr1);
-        tmpNum2 = Double.parseDouble(tmpStr2);
-    }
-    catch (NumberFormatException e){
-        System.out.println(" parse long error!! " + e);
-    }
-
-    double opResult = CalculatorProcress(tmpNum1,tmpNum2,tmpButton.ButtonOP[ranOperator][0]);
-
-    // get the test result from ui
-    String getResult = getResultFromUI();
-    getResult = getResult.replace('−','-');
-
-    testResult = checkCalculatorResult(getResult,opResult);
-    if (testResult) {
-        System.out.println("[BasicFunction] Test result : PASS ");
-        return true;
-    }else{
-        getScreenShot("[BasicFunctionTest] Test result : FALSE");
-        return false;
-    }
-
-}
-*/
-
-
